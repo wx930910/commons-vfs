@@ -16,6 +16,10 @@
  */
 package org.apache.commons.vfs2.filter;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,175 +33,167 @@ import org.junit.Test;
 // CHECKSTYLE:OFF Test code
 public class AndFileFilterTest extends BaseFilterTest {
 
-    @Test
-    public void testAndFileFilterFileFilter() {
+	public static FileFilter mockFileFilter3() throws FileSystemException {
+		FileFilter mockInstance = mock(FileFilter.class);
+		return mockInstance;
+	}
 
-        // PREPARE
-        final FileFilter filter1 = new DummyFilter();
-        final FileFilter filter2 = new DummyFilter();
-        final FileFilter filter3 = new DummyFilter();
+	public static FileFilter mockFileFilter2() throws FileSystemException {
+		FileFilter mockInstance = mock(FileFilter.class);
+		when(mockInstance.accept(any(FileSelectInfo.class))).thenReturn(true);
+		return mockInstance;
+	}
 
-        // TEST
-        final AndFileFilter testee = new AndFileFilter(filter1, filter2, filter3);
+	public static FileFilter mockFileFilter1() throws FileSystemException {
+		FileFilter mockInstance = mock(FileFilter.class);
+		return mockInstance;
+	}
 
-        // VERIFY
-        assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
+	@Test
+	public void testAndFileFilterFileFilter() throws FileSystemException, FileSystemException, FileSystemException {
 
-    }
+		// PREPARE
+		final FileFilter filter1 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter2 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter3 = AndFileFilterTest.mockFileFilter1();
 
-    @Test
-    public void testAndFileFilterList() {
+		// TEST
+		final AndFileFilter testee = new AndFileFilter(filter1, filter2, filter3);
 
-        // PREPARE
-        final FileFilter filter1 = new DummyFilter();
-        final FileFilter filter2 = new DummyFilter();
-        final FileFilter filter3 = new DummyFilter();
-        final List<FileFilter> list = new ArrayList<>();
-        list.add(filter1);
-        list.add(filter2);
-        list.add(filter3);
+		// VERIFY
+		assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
 
-        // TEST
-        final AndFileFilter testee = new AndFileFilter(list);
+	}
 
-        // VERIFY
-        assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
+	@Test
+	public void testAndFileFilterList() throws FileSystemException, FileSystemException, FileSystemException {
 
-    }
+		// PREPARE
+		final FileFilter filter1 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter2 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter3 = AndFileFilterTest.mockFileFilter1();
+		final List<FileFilter> list = new ArrayList<>();
+		list.add(filter1);
+		list.add(filter2);
+		list.add(filter3);
 
-    @Test
-    public void testAddFileFilter() {
+		// TEST
+		final AndFileFilter testee = new AndFileFilter(list);
 
-        // PREPARE
-        final FileFilter filter1 = new DummyFilter();
-        final FileFilter filter2 = new DummyFilter();
-        final FileFilter filter3 = new DummyFilter();
+		// VERIFY
+		assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
 
-        // TEST
-        final AndFileFilter testee = new AndFileFilter();
-        testee.addFileFilter(filter1);
-        testee.addFileFilter(filter2);
-        testee.addFileFilter(filter3);
+	}
 
-        // VERIFY
-        assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
+	@Test
+	public void testAddFileFilter() throws FileSystemException, FileSystemException, FileSystemException {
 
-    }
+		// PREPARE
+		final FileFilter filter1 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter2 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter3 = AndFileFilterTest.mockFileFilter1();
 
-    @Test
-    public void testRemoveFileFilter() {
+		// TEST
+		final AndFileFilter testee = new AndFileFilter();
+		testee.addFileFilter(filter1);
+		testee.addFileFilter(filter2);
+		testee.addFileFilter(filter3);
 
-        // PREPARE
-        final FileFilter filter1 = new DummyFilter();
-        final FileFilter filter2 = new DummyFilter();
-        final FileFilter filter3 = new DummyFilter();
-        final AndFileFilter testee = new AndFileFilter(filter1, filter2, filter3);
+		// VERIFY
+		assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
 
-        // TEST
-        testee.removeFileFilter(filter2);
+	}
 
-        // VERIFY
-        assertContainsOnly(testee.getFileFilters(), filter1, filter3);
+	@Test
+	public void testRemoveFileFilter() throws FileSystemException, FileSystemException, FileSystemException {
 
-    }
+		// PREPARE
+		final FileFilter filter1 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter2 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter3 = AndFileFilterTest.mockFileFilter1();
+		final AndFileFilter testee = new AndFileFilter(filter1, filter2, filter3);
 
-    @Test
-    public void testSetFileFilters() {
+		// TEST
+		testee.removeFileFilter(filter2);
 
-        // PREPARE
-        final FileFilter filter1 = new DummyFilter();
-        final FileFilter filter2 = new DummyFilter();
-        final FileFilter filter3 = new DummyFilter();
-        final List<FileFilter> list = new ArrayList<>();
-        list.add(filter1);
-        list.add(filter2);
-        list.add(filter3);
-        final AndFileFilter testee = new AndFileFilter();
+		// VERIFY
+		assertContainsOnly(testee.getFileFilters(), filter1, filter3);
 
-        // TEST
-        testee.setFileFilters(list);
+	}
 
-        // VERIFY
-        assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
+	@Test
+	public void testSetFileFilters() throws FileSystemException, FileSystemException, FileSystemException {
 
-    }
+		// PREPARE
+		final FileFilter filter1 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter2 = AndFileFilterTest.mockFileFilter1();
+		final FileFilter filter3 = AndFileFilterTest.mockFileFilter1();
+		final List<FileFilter> list = new ArrayList<>();
+		list.add(filter1);
+		list.add(filter2);
+		list.add(filter3);
+		final AndFileFilter testee = new AndFileFilter();
 
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testAccept() throws FileSystemException {
+		// TEST
+		testee.setFileFilters(list);
 
-        final FileSelectInfo any = createFileSelectInfo(new File("anyfile"));
+		// VERIFY
+		assertContainsOnly(testee.getFileFilters(), filter1, filter2, filter3);
 
-        // Empty
-        Assert.assertFalse(new AndFileFilter().accept(any));
+	}
 
-        // True
-        Assert.assertTrue(new AndFileFilter(new True()).accept(any));
-        Assert.assertTrue(new AndFileFilter(new True(), new True()).accept(any));
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testAccept() throws FileSystemException, FileSystemException, FileSystemException, FileSystemException,
+			FileSystemException, FileSystemException, FileSystemException, FileSystemException, FileSystemException,
+			FileSystemException, FileSystemException {
 
-        // False
-        Assert.assertFalse(new AndFileFilter(new False()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new False(), new False()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new False(), new True()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new True(), new False()).accept(any));
+		final FileSelectInfo any = createFileSelectInfo(new File("anyfile"));
 
-    }
+		// Empty
+		Assert.assertFalse(new AndFileFilter().accept(any));
 
-    @Test
-    public void testAcceptChecked() throws FileSystemException {
+		// True
+		Assert.assertTrue(new AndFileFilter(AndFileFilterTest.mockFileFilter2()).accept(any));
+		Assert.assertTrue(new AndFileFilter(AndFileFilterTest.mockFileFilter2(), AndFileFilterTest.mockFileFilter2())
+				.accept(any));
 
-        final FileSelectInfo any = createFileSelectInfo(new File("anyfile"));
+		// False
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3()).accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3(), AndFileFilterTest.mockFileFilter3())
+				.accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3(), AndFileFilterTest.mockFileFilter2())
+				.accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter2(), AndFileFilterTest.mockFileFilter3())
+				.accept(any));
 
-        // Empty
-        Assert.assertFalse(new AndFileFilter().accept(any));
+	}
 
-        // True
-        Assert.assertTrue(new AndFileFilter(new True()).accept(any));
-        Assert.assertTrue(new AndFileFilter(new True(), new True()).accept(any));
+	@Test
+	public void testAcceptChecked() throws FileSystemException, FileSystemException, FileSystemException,
+			FileSystemException, FileSystemException, FileSystemException, FileSystemException, FileSystemException,
+			FileSystemException, FileSystemException, FileSystemException {
 
-        // False
-        Assert.assertFalse(new AndFileFilter(new False()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new False(), new False()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new False(), new True()).accept(any));
-        Assert.assertFalse(new AndFileFilter(new True(), new False()).accept(any));
+		final FileSelectInfo any = createFileSelectInfo(new File("anyfile"));
 
-    }
+		// Empty
+		Assert.assertFalse(new AndFileFilter().accept(any));
 
-    /**
-     * Just a filter class.
-     */
-    private static class DummyFilter implements FileFilter {
+		// True
+		Assert.assertTrue(new AndFileFilter(AndFileFilterTest.mockFileFilter2()).accept(any));
+		Assert.assertTrue(new AndFileFilter(AndFileFilterTest.mockFileFilter2(), AndFileFilterTest.mockFileFilter2())
+				.accept(any));
 
-        @Override
-        public boolean accept(final FileSelectInfo fileInfo) {
-            return false;
-        }
+		// False
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3()).accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3(), AndFileFilterTest.mockFileFilter3())
+				.accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter3(), AndFileFilterTest.mockFileFilter2())
+				.accept(any));
+		Assert.assertFalse(new AndFileFilter(AndFileFilterTest.mockFileFilter2(), AndFileFilterTest.mockFileFilter3())
+				.accept(any));
 
-    }
-
-    /**
-     * Always TRUE.
-     */
-    private static class True implements FileFilter {
-
-        @Override
-        public boolean accept(final FileSelectInfo fileInfo) {
-            return true;
-        }
-
-    }
-
-    /**
-     * Always FALSE.
-     */
-    private static class False implements FileFilter {
-
-        @Override
-        public boolean accept(final FileSelectInfo fileInfo) {
-            return false;
-        }
-
-    }
+	}
 
 }
 // CHECKSTYLE:ON
