@@ -16,6 +16,10 @@
  */
 package org.apache.commons.vfs2.test;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -28,101 +32,95 @@ import org.apache.commons.vfs2.Selectors;
  * File system test that do some delete operations.
  */
 public class ProviderDeleteTests extends AbstractProviderTestCase {
-    private class FileNameSelector implements FileSelector {
-        final String basename;
+	public FileSelector mockFileSelector1(final String basename) throws Exception {
+		String mockFieldVariableBasename;
+		FileSelector mockInstance = mock(FileSelector.class);
+		mockFieldVariableBasename = basename;
+		when(mockInstance.includeFile(any(FileSelectInfo.class))).thenAnswer((stubInvo) -> {
+			FileSelectInfo fileInfo = stubInvo.getArgument(0);
+			return mockFieldVariableBasename.equals(fileInfo.getFile().getName().getBaseName());
+		});
+		when(mockInstance.traverseDescendents(any(FileSelectInfo.class))).thenReturn(true);
+		return mockInstance;
+	}
 
-        private FileNameSelector(final String basename) {
-            this.basename = basename;
-        }
+	/**
+	 * Returns the capabilities required by the tests of this test case.
+	 */
+	@Override
+	protected Capability[] getRequiredCaps() {
+		return new Capability[] { Capability.CREATE, Capability.DELETE, Capability.GET_TYPE,
+				Capability.LIST_CHILDREN, };
+	}
 
-        @Override
-        public boolean includeFile(final FileSelectInfo fileInfo) throws Exception {
-            return this.basename.equals(fileInfo.getFile().getName().getBaseName());
-        }
+	/**
+	 * Sets up a scratch folder for the test to use.
+	 */
+	protected FileObject createScratchFolder() throws Exception {
+		final FileObject scratchFolder = getWriteFolder();
 
-        @Override
-        public boolean traverseDescendents(final FileSelectInfo fileInfo) throws Exception {
-            return true;
-        }
-    }
+		// Make sure the test folder is empty
+		scratchFolder.delete(Selectors.EXCLUDE_SELF);
+		scratchFolder.createFolder();
 
-    /**
-     * Returns the capabilities required by the tests of this test case.
-     */
-    @Override
-    protected Capability[] getRequiredCaps() {
-        return new Capability[] { Capability.CREATE, Capability.DELETE, Capability.GET_TYPE,
-                Capability.LIST_CHILDREN, };
-    }
+		final FileObject dir1 = scratchFolder.resolveFile("dir1");
+		dir1.createFolder();
+		final FileObject dir1file1 = dir1.resolveFile("a.txt");
+		dir1file1.createFile();
+		final FileObject dir2 = scratchFolder.resolveFile("dir2");
+		dir2.createFolder();
+		final FileObject dir2file1 = dir2.resolveFile("b.txt");
+		dir2file1.createFile();
 
-    /**
-     * Sets up a scratch folder for the test to use.
-     */
-    protected FileObject createScratchFolder() throws Exception {
-        final FileObject scratchFolder = getWriteFolder();
+		return scratchFolder;
+	}
 
-        // Make sure the test folder is empty
-        scratchFolder.delete(Selectors.EXCLUDE_SELF);
-        scratchFolder.createFolder();
+	/**
+	 * deletes the complete structure
+	 */
+	public void testDeleteFiles() throws Exception {
+		final FileObject scratchFolder = createScratchFolder();
 
-        final FileObject dir1 = scratchFolder.resolveFile("dir1");
-        dir1.createFolder();
-        final FileObject dir1file1 = dir1.resolveFile("a.txt");
-        dir1file1.createFile();
-        final FileObject dir2 = scratchFolder.resolveFile("dir2");
-        dir2.createFolder();
-        final FileObject dir2file1 = dir2.resolveFile("b.txt");
-        dir2file1.createFile();
+		assertEquals(4, scratchFolder.delete(Selectors.EXCLUDE_SELF));
+	}
 
-        return scratchFolder;
-    }
+	/**
+	 * deletes a single file
+	 */
+	public void testDeleteFile() throws Exception {
+		final FileObject scratchFolder = createScratchFolder();
 
-    /**
-     * deletes the complete structure
-     */
-    public void testDeleteFiles() throws Exception {
-        final FileObject scratchFolder = createScratchFolder();
+		final FileObject file = scratchFolder.resolveFile("dir1/a.txt");
 
-        assertEquals(4, scratchFolder.delete(Selectors.EXCLUDE_SELF));
-    }
+		assertTrue(file.delete());
+	}
 
-    /**
-     * deletes a single file
-     */
-    public void testDeleteFile() throws Exception {
-        final FileObject scratchFolder = createScratchFolder();
+	/**
+	 * Deletes a non existent file
+	 */
+	public void testDeleteNonExistantFile() throws Exception {
+		final FileObject scratchFolder = createScratchFolder();
 
-        final FileObject file = scratchFolder.resolveFile("dir1/a.txt");
+		final FileObject file = scratchFolder.resolveFile("dir1/aa.txt");
 
-        assertTrue(file.delete());
-    }
+		assertFalse(file.delete());
+	}
 
-    /**
-     * Deletes a non existent file
-     */
-    public void testDeleteNonExistantFile() throws Exception {
-        final FileObject scratchFolder = createScratchFolder();
+	/**
+	 * deletes files
+	 */
+	public void testDeleteAllFiles() throws Exception {
+		final FileObject scratchFolder = createScratchFolder();
 
-        final FileObject file = scratchFolder.resolveFile("dir1/aa.txt");
+		assertEquals(2, scratchFolder.delete(new FileTypeSelector(FileType.FILE)));
+	}
 
-        assertFalse(file.delete());
-    }
+	/**
+	 * deletes a.txt
+	 */
+	public void testDeleteOneFiles() throws Exception, Exception {
+		final FileObject scratchFolder = createScratchFolder();
 
-    /**
-     * deletes files
-     */
-    public void testDeleteAllFiles() throws Exception {
-        final FileObject scratchFolder = createScratchFolder();
-
-        assertEquals(2, scratchFolder.delete(new FileTypeSelector(FileType.FILE)));
-    }
-
-    /**
-     * deletes a.txt
-     */
-    public void testDeleteOneFiles() throws Exception {
-        final FileObject scratchFolder = createScratchFolder();
-
-        assertEquals(1, scratchFolder.delete(new FileNameSelector("a.txt")));
-    }
+		assertEquals(1, scratchFolder.delete(mockFileSelector1("a.txt")));
+	}
 }
