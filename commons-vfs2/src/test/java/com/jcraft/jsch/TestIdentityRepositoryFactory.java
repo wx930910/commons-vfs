@@ -16,18 +16,28 @@
  */
 package com.jcraft.jsch;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.vfs2.provider.sftp.IdentityRepositoryFactory;
 
 /**
- * Simple JSch identity repository factory (that just returns the default factory).
+ * Simple JSch identity repository factory (that just returns the default
+ * factory).
  *
- * This class is packaged in {@code com.jcraft.jsch} because {@code com.jcraft.jsch.LocalIdentityRepository} is declared
- * with default scope.
+ * This class is packaged in {@code com.jcraft.jsch} because
+ * {@code com.jcraft.jsch.LocalIdentityRepository} is declared with default
+ * scope.
  *
  */
-public class TestIdentityRepositoryFactory implements IdentityRepositoryFactory {
-    @Override
-    public IdentityRepository create(final JSch jsch) {
-        return new LocalIdentityRepository(jsch);
-    }
+public class TestIdentityRepositoryFactory {
+	public static IdentityRepositoryFactory mockIdentityRepositoryFactory1() {
+		IdentityRepositoryFactory mockInstance = mock(IdentityRepositoryFactory.class);
+		when(mockInstance.create(any(JSch.class))).thenAnswer((stubInvo) -> {
+			JSch jsch = stubInvo.getArgument(0);
+			return new LocalIdentityRepository(jsch);
+		});
+		return mockInstance;
+	}
 }
